@@ -1,0 +1,11 @@
+*{
+  background-color: darkgreen;
+  color: white;
+  font-family: monospace;
+}
+
+#gameLog{
+  background-color: black;
+  height: 60vh;
+  overflow: auto;
+}

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="controls">
+    <button id="fight1" onclick="fight(Player, new NPC ('bug', 'Ruby', 1, [], 0, 1, 3, 3, 0, 1, 1, 1, 0, 1, 2))">Fight a Bug</button>
+    <button id="fight2" onclick="fight(Player, new NPC ('fox', 'Joey', 1, [], 1, 1, 3, 3, 0, 2, 2, 2, 0, 3, 3))">Fight a Fox</button>
+    <button id="fight2" onclick="fight(Player, new NPC ('man', 'Ronald', 1, [items[1]], 1, 1, 10, 10, 0, 5, 5, 5, 0, 30, 10))">Fight a Man</button>
+    <button id="fight3" onclick="fight(Player, ogre)">Fight the Ogre</button>
+  </div>
+  <div id="gameLog"></div>
+  <script src="videoGameBackend.js"></script>
+</body>
+</html>
