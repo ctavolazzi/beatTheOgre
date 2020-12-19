@@ -20,7 +20,7 @@ const Player = {
   experienceValue: 100,
   experienceThreshold: 1,
   modifiers: {},
-  greetings: ["Hello!", "I'll fucking kill you!", "Do you know who I am?", "Wanna get clapped?", "I'm terribly sorry about this.", "Easy way, hard way. You choice.", "I'm just as confused as you are.", "Hi-ya!!", "Go home.", "You don't need to do this."],
+  greetings: ["Hello!", "I'll fucking kill you!", "Do you know who I am?", "Wanna get clapped?", "I'm terribly sorry about this.", "Easy way, hard way. You choice.", "I'm just as confused as you are.", "Hi-ya!!", "Go home.", "You don't need to do this.", "I've come a long way for this.", "You haven't got a chance.", "Have at you!"],
 
   // METHODS ////
   greet: function (optionalMessage) {
@@ -44,35 +44,40 @@ const Player = {
       logGameEvent(this.name + ' gained ' + source.experienceValue + ' XP')
   },
 
-  levelUp: function () { 
-    //NOTE: still working on balancing stats. Values are likely to change.
+  levelUp: function () {
+    //NOTE: still working on balancing stats. Values are subject to change.
     this.level += 1;
     this.maxHealth += 1;
     this.health = this.maxHealth;
     this.maxInventory += 1;
     this.strength += 1;
+
     if (this.modifiers.strength) {
       this.attack = this.strength + this.modifiers.strength;
     } else {
       this.attack = this.strength;
     }
+
     this.dexterity += 1;
     this.attackSpeed = (this.attackSpeed - (100 * (1 / this.dexterity))).toFixed(2);
     this.stamina += 1;
     this.experienceValue = Math.ceil(this.experienceValue * 1.1);;
     this.experienceThreshold = Math.ceil(this.experienceThreshold * 1.5);
+
     logGameEvent(this.name + " LEVELED UP!\n" + this.name + ' is now level ' + this.level);
     displayGameEvent("gameLog", this.name + " LEVELED UP!" + "<br>" + this.name + ' is now level ' + this.level)
-    updateCharacterInfo("characterInfo", Player.name + "<br><br>" + 'Level: ' + Player.level + "<br>" + 'Health: ' + Player.health + "<br>" + 'Max Health: ' + Player.maxHealth + "<br>" + 'Strength: ' + Player.strength + "<br>" + 'Attack: ' + Player.attack + "<br>" + 'Dexterity: ' + Player.dexterity + "<br>" + 'Attack Speed: ' + Player.attackSpeed + "<br>" + 'Defense: ' + Player.defense + "<br>" + 'Stamina: ' + Player.stamina + "<br>" + 'Experience: ' + Player.experience + "<br>" + 'Experience Value: ' + Player.experienceValue + "<br>" + 'Experience Threshold: ' + Player.experienceThreshold + "<br>" + 'Modifiers: ' + JSON.stringify(Player.modifiers) + "<br>" + 'Max Inventory: ' + Player.maxInventory + "<br>" + 'Inventory: ' + JSON.stringify(Player.inventory) )    },
+    updateCharacterInfo("characterInfo", Player.name + "<br><br>" + 'Level: ' + Player.level + "<br>" + 'Health: ' + Player.health + "<br>" + 'Max Health: ' + Player.maxHealth + "<br>" + 'Strength: ' + Player.strength + "<br>" + 'Attack: ' + Player.attack + "<br>" + 'Dexterity: ' + Player.dexterity + "<br>" + 'Attack Speed: ' + Player.attackSpeed + "<br>" + 'Defense: ' + Player.defense + "<br>" + 'Stamina: ' + Player.stamina + "<br>" + 'Experience: ' + Player.experience + "<br>" + 'Experience Value: ' + Player.experienceValue + "<br>" + 'Experience Threshold: ' + Player.experienceThreshold + "<br>" + 'Modifiers: ' + JSON.stringify(Player.modifiers) + "<br>" + 'Max Inventory: ' + Player.maxInventory + "<br>" + 'Inventory: ' + JSON.stringify(Player.inventory) )
+    },
 
-  strike: function (target) { 
+  strike: function (target) {
     // these have to be here to display information in the correct order
-    logGameEvent(this.name + ' strikes ' + target.name)      
+    logGameEvent(this.name + ' strikes ' + target.name)
     displayGameEvent("attackInfo", this.name + ' strikes ' + target.name)
 
     let damage = this.strength;
-    applyDamage(this, target, damage, "attackInfo");
-    // "applyDamamge" uses "this" to access the Player's name
+
+    applyDamage(this, target, damage, "attackInfo");// "applyDamamge" uses "this" to access the Player's name
+
   },
 
   pickup: function (item) {
@@ -88,7 +93,7 @@ const Player = {
 
   drop: function (item) {
     if (item.modifiers) {
-      removeItemModifiersOnItemDrop(item, this);
+      removeItemModifiers(item, this);
     }
 
     let itemLocation = this.inventory.indexOf(item);
@@ -100,53 +105,102 @@ const Player = {
   }
 
 };//end Player object
-
+// This has to be globally accessible. I know it's messy, I wrote it when I was but a padawan (in many ways, I always will be)
 updateCharacterInfo("characterInfo", Player.name + "<br><br>" + 'Level: ' + Player.level + "<br>" + 'Health: ' + Player.health + "<br>" + 'Max Health: ' + Player.maxHealth + "<br>" + 'Strength: ' + Player.strength + "<br>" + 'Attack: ' + Player.attack + "<br>" + 'Dexterity: ' + Player.dexterity + "<br>" + 'Attack Speed: ' + Player.attackSpeed + "<br>" + 'Defense: ' + Player.defense + "<br>" + 'Stamina: ' + Player.stamina + "<br>" + 'Experience: ' + Player.experience + "<br>" + 'Experience Value: ' + Player.experienceValue + "<br>" + 'Experience Threshold: ' + Player.experienceThreshold + "<br>" + 'Modifiers: ' + JSON.stringify(Player.modifiers) + "<br>" + 'Max Inventory: ' + Player.maxInventory + "<br>" + 'Inventory: ' + JSON.stringify(Player.inventory) )
+
+
 const items = {
   // A global list of items
   // Used to populate character inventories
-  // Item modifiers must be formatted as "(characterStat) (amountModified)"
+  // All items are stored as objects
+  // All rarities are arrays of objects
+  // Item modifiers must be formatted as a string the has these values in this order: "characterStat amountModified"
   // The functions that modify character stats use that string
   // NOTE: still working on developing more items and balancing stat modifiers
+  // Items can be accessed globally using this format: items.type.rarity[index] or items.type.rarity.arrayMethod()
+  // Just be sure your arrayMethod callback operates on objects
+
   weapons: {
-    // COMMON WEAPONS
-    common: [
-          {
-            name: 'Basic Axe',
-            modifiers: ['attack +1'],
-            rarity: 'common',
-            value: 3,
-            quote: 'A sturdy common axe.'
-          },
-          {
-            name: 'Small Shield',
-            modifiers: ['defense +1'],
-            rarity: 'common',
-            value: 3,
-            quote: 'A sturdy common shield.'
-          },
-    ],
-    // UNCOMMON WEAPONS
-    uncommon: [
-        {
-          name: 'Big Shield',
-          modifiers: ['defense +4', 'dexterity -2'],
-          rarity: 'uncommon', 
-          value: 10,
-          quote: 'A big uncommon shield.'
-        },
-    ],
-    // RARE WEAPONS
-    rare: [
-       {
+    // UNIQUE WEAPONS
+    // Should always be stored at the top of the weapons object
+    unique: [
+      {
+        name: 'Wareworlf Hunter\'s Crossbow',
+        modifiers: ['attack +7', 'unlocks rangedAttack'],
+        rarity: 'unique',
+        value: 0,
+        quote: 'Rumor has it a rogue used this to take out a warewolf. Story goes, that warewolf turned out to be his own brother.'
+      },
+      {
         name: 'Silver Sword',
         modifiers: ['attack +4', 'dexterity +1'],
         rarity: 'rare',
         value: 100,
-        quote: "It's shine alone can cut." 
+        quote: "It's shine alone can cut. Perfect for dealing with warewolves."
+      }
+    ],
+    // COMMON WEAPONS
+    common: [
+      {
+        name: 'Basic Axe',
+        modifiers: ['attack +1'],
+        rarity: 'common',
+        value: 3,
+        quote: 'A sturdy common axe.'
+      },
+    ],
+    // UNCOMMON WEAPONS
+    uncommon: [
+      {
+      name: 'Big Sword',
+      modifiers: ['strength +3'],
+      rarity: 'uncommon',
+      value: 10,
+      quote: 'A big dang sword.'
+      }
+    ],
+    // RARE WEAPONS
+    rare: [
+      {
+        name: 'Battle Axe',
+        modifiers: ['attack +7', 'dexterity -2'],
+        rarity: 'rare',
+        value: 50,
+        quote: 'I got a battle axe in my cadillac.'
       }
     ]
   }, // End of weapons object
+
+  armor: {
+    unique: [],// Nothing here at the moment.
+    common: [
+      {
+      name: 'Small Shield',
+      modifiers: ['defense +1'],
+      rarity: 'common',
+      value: 3,
+      quote: 'A sturdy common shield.'
+      },
+    ],
+    uncommon: [
+      {
+        name: 'Big Shield',
+        modifiers: ['defense +4', 'dexterity -2'],
+        rarity: 'uncommon',
+        value: 10,
+        quote: 'A big uncommon shield.'
+      }
+    ],
+    rare: [
+      {
+        name: 'Beskar Helmet',
+        modofiers: ['defense + 50'],
+        rarity: 'rare',
+        value: 10000,
+        quote: 'A very sturdy helmet.'
+      }
+    ]
+  },
 
   scrolls: [
     {
@@ -155,7 +209,7 @@ const items = {
       rarity: 'unique',
       value: 100000000,
       quote: 'Some knowledge, men were not supposed to possess...'
-    }, 
+    },
     {
       name: 'Scroll of Frost',
       modifiers: ['unlocks casting'],
@@ -177,7 +231,7 @@ const trackers = {
 
 // NPC FUNCTIONS ////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-function NPC (type = 'NPC', name = randomName(), inventory = [], maxInventory = 1, level = 1, health = 5, maxHealth = 5, strength = 1, dexterity = 1, attackSpeed = 2000, defense = 0, stamina = 3, experience = 0, experienceValue = 1, experienceThreshold = 1, greetings = ['Hello', '[bleep] you!']) {
+function NPC (type = 'NPC', name = randomName(), inventory = [], maxInventory = 1, level = 1, health = 5, maxHealth = 5, strength = 1, dexterity = 1, attackSpeed = 2000, defense = 0, stamina = 3, experience = 0, experienceValue = 1, experienceThreshold = 1, greetings = ['Hello!', '[bleep] you!']) {
 
   // STATS ////
   this.type = type;
@@ -201,14 +255,14 @@ function NPC (type = 'NPC', name = randomName(), inventory = [], maxInventory = 
 
   //NPC METHODS ////
   this.drop = function (item) {
-    // NOTE: 
+    // NOTE:
     let droppedItem = this.inventory.splice(this.inventory.indexOf(item), 1);
     console.log(droppedItem[0])
 
     logGameEvent(this.name + ' dropped the ' + item.name);
     displayGameEvent("gameLog", this.name + ' dropped the ' + item.name);
 
-    removeItemModifiersOnItemDrop(droppedItem[0], this);
+    removeItemModifiers(droppedItem[0], this);
 
     return droppedItem[0];
   };
@@ -242,7 +296,7 @@ function NPC (type = 'NPC', name = randomName(), inventory = [], maxInventory = 
     displayGameEvent("gameLog", this.name + ' says "' + this.greetings[greetingNumber] + '"');
   };
 
-  this.levelUp= function () { 
+  this.levelUp= function () {
     //NOTE: still working on balancing stats. Values are likely to change.
     this.level += 1;
     this.maxHealth += 1;
@@ -254,7 +308,7 @@ function NPC (type = 'NPC', name = randomName(), inventory = [], maxInventory = 
     this.stamina += 1;
     this.experienceValue = Math.ceil(this.experienceValue * 1.1);;
     this.experienceThreshold = Math.ceil(this.experienceThreshold * 1.5);
-    // DISPLAY INFO 
+    // DISPLAY INFO
     logGameEvent(this.name + " LEVELED UP!\n" + this.name + ' is now level ' + this.level);
     displayGameEvent("gameLog", this.name + " LEVELED UP!" + "<br>" + this.name + ' is now level ' + this.level)
     },
@@ -263,7 +317,7 @@ function NPC (type = 'NPC', name = randomName(), inventory = [], maxInventory = 
     // these need to be here to display information in proper order
     logGameEvent(this.name + ' picks up the ' + item.name);
     displayGameEvent("gameLog", this.name + ' picks up the ' + item.name);
-    
+
     if (item.modifiers) {
       procItemModifiersOnItemPickup(item, this);
     }
@@ -319,43 +373,41 @@ function cast (spell, target) {
   spell(this, target)
 }
 
-function enableCasting (character) {
+function unlockSpell (character, spell) {
   character.mana = 10;
-  character.cast = function (spell, target) {
-    spell(target);
-  }
+  character.cast = spell;
 }
 
 function populateInventory (character, itemsToSpawn, rarity) {
-  // Spawn a given number of items in the character's inventory 
+  // Spawn a given number of items in the character's inventory
   for (let i=0; i<itemsToSpawn; i++) {
     let spawnedItem = items.weapons[rarity][getRandomInt(0, items.weapons[rarity].length - 1)];
 
     logGameEvent('Spawned ' + spawnedItem.name);
     displayGameEvent("gameLog", 'Spawned ' + spawnedItem.name)
-    character.pickup(spawnedItem)       
+    character.pickup(spawnedItem)
   }
 }
 
 function procItemModifiersOnItemPickup (item, character) {
-  /*  
-      When a character picks up an item, the item modifies that character's stats 
+  /*
+      When a character picks up an item, the item modifies that character's stats
       and abilities.
 
-      Each item has a 'modifiers' property storing an array consisting of one string.
+      Each item has a 'modifiers' property storing an array consisting some formatted strings.
 
       This function splits the string into two parts, the stat to be modified, and the amount to modify it, represented by a positive or negative integer.
 
+      It's sister function, removeItemModifiersOnItemPickup, performs the reverse work when an item is dropped.
+
       Items like "Scroll of Fireball" can also unlock abilities. Its 'modifiers' property is "unlock casting".
 
-      This function uses a conditional function called "unlockAbility" to perform the work necessary to add abilities to the character being modified. It is triggered by the "unlock" keyword in the item's 'modifiers' property. 
-
-      It's sister function, removeItemModifiersOnItemPickup, performs the reverse work when an item is dropped.
+      This function uses a conditional function called "unlockAbility" to perform the work necessary to add abilities to the character being modified. It is triggered by the "unlock" keyword in the item's 'modifiers' property.
   */
 
   for (let i=0; i<item.modifiers.length; i++) {
     let currentItemModifier = item.modifiers[i].split(' ');
-    
+
     let statToModify = currentItemModifier[0];
     let amount = currentItemModifier[1];
 
@@ -364,10 +416,9 @@ function procItemModifiersOnItemPickup (item, character) {
     } else {
       character.modifiers[statToModify] += Number(amount)
     }
-    
-    let ability = currentItemModifier[1];
 
     if (statToModify === 'unlocks') {
+      let ability = currentItemModifier[1];
       unlockAbility(character, ability);
 
     } else {
@@ -379,7 +430,7 @@ function procItemModifiersOnItemPickup (item, character) {
   }
 }
 
-function removeItemModifiersOnItemDrop (item, character) {
+function removeItemModifiers (item, character) {
   for (let i=0; i<item.modifiers.length; i++) {
     // Split the modifier into the stat it's modifying, and the amount
     let currentItemModifier = item.modifiers[i].split(' ');
@@ -478,12 +529,12 @@ function fight (dude1, dude2) {
   dude2.greet();
 
   logGameEvent(dude1.name + ' attack interval set to ' + (dude1.attackSpeed / 1000) + ' seconds\n' +  dude2.name + ' attack interval set to ' + (dude2.attackSpeed / 1000) + ' seconds')
-  
+
   // DUDE1 ////////////////
   function dude1Attack () {
     // PHYSICAL DAMAGE //
     dude1.strike(dude2);
-    updateCharacterInfo("characterInfo", Player.name + "<br><br>" + 'Level: ' + Player.level + "<br>" + 'Health: ' + Player.health + "<br>" + 'Max Health: ' + Player.maxHealth + "<br>" + 'Strength: ' + Player.strength + "<br>" + 'Attack: ' + Player.attack + "<br>" + 'Dexterity: ' + Player.dexterity + "<br>" + 'Attack Speed: ' + Player.attackSpeed + "<br>" + 'Defense: ' + Player.defense + "<br>" + 'Stamina: ' + Player.stamina + "<br>" + 'Experience: ' + Player.experience + "<br>" + 'Experience Value: ' + Player.experienceValue + "<br>" + 'Experience Threshold: ' + Player.experienceThreshold + "<br>" + 'Modifiers: ' + JSON.stringify(Player.modifiers) + "<br>" + 'Max Inventory: ' + Player.maxInventory + "<br>" + 'Inventory: ' + JSON.stringify(Player.inventory) )    
+    updateCharacterInfo("characterInfo", Player.name + "<br><br>" + 'Level: ' + Player.level + "<br>" + 'Health: ' + Player.health + "<br>" + 'Max Health: ' + Player.maxHealth + "<br>" + 'Strength: ' + Player.strength + "<br>" + 'Attack: ' + Player.attack + "<br>" + 'Dexterity: ' + Player.dexterity + "<br>" + 'Attack Speed: ' + Player.attackSpeed + "<br>" + 'Defense: ' + Player.defense + "<br>" + 'Stamina: ' + Player.stamina + "<br>" + 'Experience: ' + Player.experience + "<br>" + 'Experience Value: ' + Player.experienceValue + "<br>" + 'Experience Threshold: ' + Player.experienceThreshold + "<br>" + 'Modifiers: ' + JSON.stringify(Player.modifiers) + "<br>" + 'Max Inventory: ' + Player.maxInventory + "<br>" + 'Inventory: ' + JSON.stringify(Player.inventory) )
     if (dude2.health <= 0) {
       endFight(dude1, dude2, dude1AttackInterval, dude2AttackInterval)
     }
@@ -493,7 +544,7 @@ function fight (dude1, dude2) {
     }
     */
   }
-  
+
   // DUDE2 ////////////////
   function dude2Attack () {
     dude2.strike(dude1);
@@ -549,7 +600,7 @@ function declareWinner (winner) {
 };
 
 function declareExperience (winner, loser) {
-  logGameEvent(winner.name + 
+  logGameEvent(winner.name +
   '\nExperience gained: ' + loser.experienceValue + '\nTotal experience: ' + winner.experience + '\nExperience to next level: ' + (winner.experienceThreshold - winner.experience));
   displayGameEvent("gameLog", 'Experience gained: ' + loser.experienceValue + '<br>' + 'Total experience: ' + winner.experience + '<br>' + 'Experience to next level: ' + (winner.experienceThreshold - winner.experience))
 }
@@ -580,7 +631,7 @@ function distributeGoodies (winner, loser) {
   if (loser.inventory.length > 0) {
     // First, the loser drops all their items
     let loserInventory = loser.dropInventory();
-    // Them returned "tempInventory" from "dropInventory()" is looped through 
+    // Them returned "tempInventory" from "dropInventory()" is looped through
     for (let i=0; i<loserInventory.length; i++) {
       // And the winner picks up each item, causing any modifiers to proc
       winner.pickup(loserInventory[i]);
@@ -626,22 +677,33 @@ function greet (input) {
 // TEST CASES ///////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-const Ogre = createNewNPC('ogre', 'Malgroth', [], 5, 10, 50, 50, 8, 2, 4000, 10, 10, 60, 1000, 120, 2, 'common', ['You should never have come here!'])
-Ogre.pickup(items.scrolls[0])
+const makeOgre = function () {
+  return createNewNPC('ogre', 'Malgroth', [], 5, 10, 50, 50, 8, 2, 4000, 10, 10, 60, 1000, 120, 2, 'common', ['You should never have come here!'])
+};
+
+const Malgaroth = makeOgre()
+
+Malgaroth.pickup(items.scrolls[0])
 
 // DEFAULT BUG ENEMY ////
-const Bug = createNewNPC( 'bug', 'Buggo', [], 1, 1, 3, 3, 1, 3, 1500, 0, 3, 0, 1, 1, 0, '', ['*buzzing noises*', 'Buzz buzz bitch', '*bug sounds*'] );
+const makeBug = function () {
+  return createNewNPC( 'bug', 'Buggo', [], 1, 1, 3, 3, 1, 3, 1500, 0, 3, 0, 1, 1, 0, '', ['*buzzing noises*', 'Buzz buzz bitch', '*bug sounds*'] )
+};
 
 // DEFAULT FOX ENEMY ////
-const Fox = createNewNPC( 'fox', 'Foxy', [], 1, 1, 6, 6, 2, 6, 2000, 0, 5, 1, 10, 1, 0, '', ['What does the fox say?', 'Ring ting ting ting ting, t-ting t-ting'] )
+const makeFox = function () {
+  return createNewNPC( 'fox', 'Foxy', [], 1, 1, 6, 6, 2, 6, 2000, 0, 5, 1, 10, 1, 0, '', ['What does the fox say?', 'Ring ting ting ting ting, t-ting t-ting'] )
+};
 
 // DEFAULT HUMAN ENEMY ////
-const Human = createNewNPC( 'human', 'Greg', [], 2, 1, 20, 20, 2, 2, 3500, 0, 5, 1, 20, 1, 2, 'common', ['Hello!', 'I mean you no harm!', 'I come in peace!', 'Alright, time to die!', "I'll fucking kill you!", 'Die!', 'Ahoy!', "You've met your match!", "You killed my friend!"] );
+const makeHuman = function () {
+  return createNewNPC( 'human', 'Greg', [], 2, 1, 20, 20, 2, 2, 3500, 0, 5, 1, 20, 1, 2, 'common', ['Hello!', 'I mean you no harm!', 'I come in peace!', 'Alright, time to die!', "I'll fucking kill you!", 'Die!', 'Ahoy!', "You've met your match!", "You killed my friend!"] )
+};
 
 // TEST NPC ////
 let testNPC = new NPC ('shapeshifter', 'The Enduring One', [], 2, 1, 100, 100, 20, 5, 500, 50, 25, 100, 100, 200, ['D̴̗̯̏ŭ̵̝̄i̸̛ͅs̷ ĝ̶̖r̷̢̨̎a̵̦̎v̷͎̿ǐ̴͕́ͅd̷͔̐ͅą̷̃ ̸̜̔ę̷̕n̶̘̟̕ḯ̷̪ͅṁ̸̮̥͑ ̷͓͎͝d̶̗̞͆͆u̴͍̰̓̇i̶̬͇͂͆', 'S̶̜̃e̷͕͘d̴͓͑ ĉ̶̞o̴̬̐n̴̰͘s̸̳̆e̷̚ͅć̷̠t̸̢̾ě̴̢t̴͑͜u̸̢͘r̶̛͕', 'c̷̱̊o̴̪͛n̵̩̑s̶͐ͅè̴͕ĉ̵̹ṯ̸̈́ę̸́t̵̯͑u̵̥͝ŕ̶̩ ̴̣̽f̴̤̎a̴͔͊ù̴͇c̴͎̊i̴͕͆b̵̧̾ú̸͓ś̵̗'])
 
-let lineup = [Bug, Fox, Human];
+let lineup = [makeBug(), makeFox(), makeHuman()];
 
 console.log(lineup)
 

@@ -8,17 +8,17 @@
 </head>
 <body>
   <div id="controls">
-    <button id="fight1" onclick="fight(Player, createNewNPC( 'bug', 'Buggo', [], 1, 1, 3, 3, 1, 3, 1500, 0, 3, 0, 1, 1, 0, '', ['*buzzing noises*', 'Buzz buzz bitch', '*bug sounds*'] ))">Fight a Bug</button>
-    <button id="fight2" onclick="fight(Player, createNewNPC( 'fox', 'Foxy', [], 1, 1, 6, 6, 2, 6, 2000, 0, 5, 1, 10, 1, 0, '', ['What does the fox say?', 'Ring ting ting ting ting, t-ting t-ting'] ))">Fight a Fox</button>
-    <button id="fight2" onclick="fight(Player, createNewNPC( 'human', 'Greg', [], 2, 1, 20, 20, 2, 2, 3500, 0, 5, 1, 50, 1, 2, 'common', ['Hello!', 'I mean you no harm!', 'I come in peace!', 'Alright, time to die!', 'I\'ll fucking kill you!', 'Die!', 'Ahoy!', 'You\'ve met your match!', 'You killed my friend!'] ))">Fight a Man</button>
-    <button id="fight3" onclick="fight(Player, Ogre)">Fight the Ogre</button>
+    <button id="fight1" onclick="fight(Player, makeBug())">Fight a Bug</button>
+    <button id="fight2" onclick="fight(Player, makeFox())">Fight a Fox</button>
+    <button id="fight2" onclick="fight(Player, makeHuman())">Fight a Man</button>
+    <button id="fight3" onclick="fight(Player, Malgaroth)">Fight the Ogre</button>
   </div>
   <div id="gameLog"></div>
   <br>
   <div id="attackInfo"></div>
   <br>
   <div id="characterInfo"></div>
-  
+
   <script src="videoGameBackend.js"></script>
 </body>
 </html>
