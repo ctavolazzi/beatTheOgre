@@ -1,6 +1,32 @@
 # beatTheOgre
 "It's a simple game, sir, but it checks out."
 
+12.18.20
+UPDATE
+v 0.5
+
+I've been in Hack Reactor precourse of 3 weeks and holy crap I've already learned a lot.
+
+This update is a sort of fixing up. 
+
+The biggest change is in the way the program handles the creation of new semi-randomized NPCs on the index.html button calls.
+
+Before, it had a function call with a long and convluted number of arguments passed in.
+
+Now, it has simple function calls with no parameters.
+
+You can now call makeBug, makeFox, and makeHuman to return an NPC of the chosen type.
+
+Malgaroth is now his own object (that's the ogre).
+
+I changed some of the logic and documentation throughout. Some of it was just bad, other stuff was good but could be accomplished in more simple and straightforward ways.
+
+I'm pretty satisfied with where it's at with what I know how to do. 
+
+I still don't know how to import / export files. Sorry. The JS file is like 800 lines.
+
+It works! I'm happy!
+
 UPDATE
 v0.2 
 
