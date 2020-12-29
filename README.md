@@ -1,6 +1,29 @@
 # beatTheOgre
 "It's a simple game, sir, but it checks out."
 
+12.29.20
+jQuery Update
+
+Hacd Reactor precourse has taught me what jQuery is and ho boy, it's exactly what I've been looking for. 
+
+I'm currently updating the entire application to use jQuery. 
+
+I'm also changing the way combat works. 
+
+You will now directly control your character by selecting one of four actions: attack, defend, retreat, and heal.
+
+The enemy character will have access to these same actions.
+
+Combat will work by comparing the actions of the player character and the computer character. 
+
+When you attack, you will move forward one space and attack. Your turn will end and you will then be in attack stance, making you vulnerable to damage.
+
+So on and so forth for the other three actions.
+
+Each combatant will be able to choose one action per turn, and once both have selected an action, the turn will end and the actions will be executed.
+
+I have deadlines for Hack Reactor coming up. I'll try to work on this more when I have time.
+
 12.18.20
 UPDATE
 v 0.5
