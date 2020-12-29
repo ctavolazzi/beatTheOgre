@@ -1,8 +1,53 @@
 *{
-  background-color: darkgreen;
+  background-color: #006400;
   color: white;
   font-family: monospace;
 }
+
+#app {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 2fr .25fr auto auto;
+}
+
+.display {
+  background-color: #630032;
+  border: 3px solid black;
+  height: auto;
+  width: auto;
+  grid-row: 2 / 3;
+  grid-column: 1 / 5;
+}
+
+.title {
+  grid-column: 1 / 5;
+  grid-row: 1 / 2;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif
+}
+
+.controls {
+  border: 2px solid rgb(17, 8, 39);
+  display: flex;
+  grid-column: 1 / 5;
+  grid-row: 3 / 4;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #1A0A63;
+}
+
+button {
+  cursor: pointer;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #63310A;
+}
+
+.subtitle {
+  grid-row: 4 / 5;
+  margin-top: 40px;
+}
+
+
+/*
 
 #gameLog{
   background-color: black;
@@ -40,3 +85,5 @@ button{
   0 100px 80px rgba(0, 0, 0, 0.12)
 ;
 }
+
+*/
