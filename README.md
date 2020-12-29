@@ -4,7 +4,7 @@
 12.29.20
 jQuery Update
 
-Hacd Reactor precourse has taught me what jQuery is and ho boy, it's exactly what I've been looking for. 
+Hack Reactor precourse has taught me what jQuery is and ho boy, it's exactly what I've been looking for. 
 
 I'm currently updating the entire application to use jQuery. 
 
